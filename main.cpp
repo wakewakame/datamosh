@@ -47,16 +47,7 @@ int main(int argc, char **argv)
 			ff::AVFrameCpp frame = reader.nextFrame();
 			if (!frame) { break; }
 
-			if (global_frame_number == 0) {
-				writer.nextFrame(copy_frame_data(frame, global_frame_number, true), false);
-			}
-			else {
-				if (local_frame_number == 0) {
-					writer.nextFrame(copy_frame_data(frame, global_frame_number, true), true);
-					global_frame_number++;
-				}
-				writer.nextFrame(copy_frame_data(frame, global_frame_number, false), false);
-			}
+			writer.nextFrame(copy_frame_data(frame, global_frame_number, local_frame_number == 0), global_frame_number > 0 && local_frame_number == 0);
 
 			std::cout << "frame: " << global_frame_number << std::endl;
 		}
