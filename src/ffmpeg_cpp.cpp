@@ -385,7 +385,7 @@ namespace ff {
 			bool ignore = std::find(datamosh_pts.begin(), datamosh_pts.end(), packet->pts) != datamosh_pts.end();
 			if (ignore) {
 				datamosh_pts.remove(packet->pts);
-				continue;
+				if (packet->flags & AV_PKT_FLAG_KEY) { continue; }
 			}
 			packet->stream_index = 0;
 			av_packet_rescale_ts(packet.get(), codec_context->time_base, p_stream->time_base);

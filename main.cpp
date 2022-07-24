@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	ff::VideoWriter writer("output.mp4", AVRational{ 1, 30 });
+	ff::VideoWriter writer("output.mp4", AVRational{ 1, 60 });
 	uint64_t global_frame_number = 0;
 	for (uint64_t i = 1; i < argc; i++) {
 		ff::VideoReader reader(argv[i]);
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 			ff::AVFrameCpp frame = reader.nextFrame();
 			if (!frame) { break; }
 
-			writer.nextFrame(copy_frame_data(frame, global_frame_number, local_frame_number == 0), global_frame_number > 0 && local_frame_number == 0);
+			writer.nextFrame(copy_frame_data(frame, global_frame_number, local_frame_number == 0), global_frame_number > 0);
 
 			std::cout << "frame: " << global_frame_number << std::endl;
 		}
