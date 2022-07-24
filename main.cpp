@@ -14,7 +14,7 @@ ff::AVFrameCpp copy_frame_data(const ff::AVFrameCpp& frame, uint64_t pts, bool k
 	new_frame->height = converted_frame->height;
 	new_frame->pts = pts;
 	new_frame->key_frame = key_frame;
-	new_frame->pict_type = key_frame ? AV_PICTURE_TYPE_I : AV_PICTURE_TYPE_NONE;
+	new_frame->pict_type = key_frame ? AV_PICTURE_TYPE_I : AV_PICTURE_TYPE_P;
 	if (av_frame_get_buffer(new_frame.get(), 0) < 0) { return nullptr; }
 
 	if (new_frame->linesize[0] != converted_frame->linesize[0]) { return nullptr; }
@@ -29,12 +29,12 @@ ff::AVFrameCpp copy_frame_data(const ff::AVFrameCpp& frame, uint64_t pts, bool k
 
 int main(int argc, char **argv)
 {
-	if (argc < 3) {
+	if (argc < 2) {
 		std::cout << "Usage: datamosh <video1 path> <video2 path> ..." << std::endl;
 		return 0;
 	}
 
-	ff::VideoWriter writer("output.mp4", AVRational{ 1, 60 });
+	ff::VideoWriter writer("output.mp4", AVRational{ 1, 30 });
 	uint64_t global_frame_number = 0;
 	for (uint64_t i = 1; i < argc; i++) {
 		ff::VideoReader reader(argv[i]);

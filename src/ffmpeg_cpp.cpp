@@ -287,9 +287,12 @@ namespace ff {
 		codec_context.reset();
 		format_context.reset();
 		io_context.reset();
+		datamosh_pts.clear();
 	}
 
 	VideoWriter::VideoWriter(const std::string& path, const AVRational& time_base) {
+		reset();
+
 		io_context = ff::avio_open_cpp(path.c_str(), AVIO_FLAG_WRITE);
 		if (!io_context) {
 			reset();
@@ -322,6 +325,8 @@ namespace ff {
 	}
 
 	int VideoWriter::nextFrame(AVFrameCpp&& frame, bool datamosh) {
+		if (!isOpened()) return -1;
+
 		if (frame) {
 			if (!avcodec_is_open(codec_context.get())) {
 				codec_context->pix_fmt = static_cast<AVPixelFormat>(frame->format);
@@ -378,7 +383,10 @@ namespace ff {
 		AVPacketCpp packet = av_packet_alloc_cpp();
 		while (avcodec_receive_packet(codec_context.get(), packet.get()) == 0) {
 			bool ignore = std::find(datamosh_pts.begin(), datamosh_pts.end(), packet->pts) != datamosh_pts.end();
-			if (ignore) { datamosh_pts.remove(packet->pts); continue; }
+			if (ignore) {
+				datamosh_pts.remove(packet->pts);
+				continue;
+			}
 			packet->stream_index = 0;
 			av_packet_rescale_ts(packet.get(), codec_context->time_base, p_stream->time_base);
 			if (av_interleaved_write_frame(format_context.get(), packet.get()) != 0) {
